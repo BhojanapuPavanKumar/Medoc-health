@@ -9,18 +9,21 @@ const sampleSchema = new mongoose.Schema(
     },
     sampleName: {
       type: String,
-      required: [true, "name is required"],
+      required: [true, "sample name is required"],
       trim: true,
     },
-    date: {
+    hospitalName: {
+      type: String,
+      required: [true, "hospital name is required"],
+      trim: true,
+    },
+    scheduleTime: {
       type: Date,
       default: Date.now,
     },
-    marksample: {
-      type: String,
-      trim: true,
-      enum: ["yes", "no"],
-      default: "no",
+    sampleCollected: {
+      type: Boolean,
+      default: false,
     },
     note: {
       type: String,

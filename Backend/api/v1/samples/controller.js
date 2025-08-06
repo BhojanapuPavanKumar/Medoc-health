@@ -29,7 +29,8 @@ const getAllSampleController = async (req, res) => {
 const addSampleController = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { name, date, note } = req.body;
+    const sampleId = req.params.id;
+    const { sampleName, hospitalName, scheduleTime, note } = req.body;
 
     if (!name) {
       return res.status(400).json({
@@ -40,8 +41,10 @@ const addSampleController = async (req, res) => {
 
     const newSample = new SampleModel({
       user: userId,
-      sampleName: name,
-      date,
+      sampleName,
+      hospitalName,
+      scheduleTime,
+      sampleId,
       note,
     });
 
@@ -59,30 +62,26 @@ const addSampleController = async (req, res) => {
 
 const markSampleController = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { mark, date, note } = req.body;
+    const agentId = req.user._id;
+    const sampleId = req.params.id;
 
-    const sampleData = await SampleModel.find({ user: userId }).sort({
-      date: -1,
-    });
+    const updatedSample = await SampleModel.findOneAndUpdate(
+      { _id: sampleId, agentId },
+      { sampleCollected: true },
+      { new: true }
+    );
 
-    if (!mark) {
-      mark = "no";
+    if (!updatedSample) {
+      return res.status(404).json({
+        isSuccess: false,
+        message: "Sample not found ",
+      });
     }
 
-    const newSampleMark = new SampleModel({
-      user: userId,
-      marksample: mark,
-      date,
-      note,
-    });
-
-    await newSampleMark.save();
-
-    res.status(201).json({
+    res.status(200).json({
       isSuccess: true,
-      message: "Sample Marked successfully!",
-      data: newSampleMark,
+      message: "Sample marked as collected successfully!",
+      data: updatedSample,
     });
   } catch (error) {
     handleGenericAPIError("markSampleController", req, res, error);
